@@ -1,0 +1,132 @@
+"""
+"""
+load("vizceral.proto", "Node")
+load("math.star", "math")
+
+
+def add_node(node, callernode, targetnode, multiplier=1):
+    callers = [n for n in node.nodes if n.name == callernode.name]
+    targets = [n for n in node.nodes if n.name == targetnode.name]
+    if len(callers) == 0:
+        node.nodes.append(callernode)
+    if len(targets) == 0:
+        node.nodes.append(targetnode)
+    callernode.renderer = Node.Renderer.focusedChild
+
+    connections = [
+        n
+        for n in node.connections
+        if n.source == callernode.name and n.target == targetnode.name
+    ]
+    if len(connections) == 0:
+        node.connections.append(
+            Node.Connection(
+                source=callernode.name,
+                target=targetnode.name,
+                metrics=Node.Connection.Metrics(
+                    normal=math.fabs(float((hash(callernode.name)))) % 100 * multiplier,
+                    danger=math.fabs(float((hash(targetnode.name)))) % 10 * multiplier,
+                ),
+            )
+        )
+
+
+def NewNode(name):
+    return Node()
+
+
+CLOUDDRIVER = Node(name="clouddriver")
+CLOUD_PROVIDER = Node(name="CloudProvider")
+CONSUL = Node(name="consul")
+DECK = Node(name="deck")
+ECHO = Node(name="echo")
+FIAT = Node(name="fiat")
+FRONT50 = Node(name="front50")
+GATE = Node(name="gate", node_type=Node.NodeType.pipe)
+IGOR = Node(name="igor")
+INTERNET = Node(name="INTERNET", node_type=Node.NodeType.users)
+KAYENTA = Node(name="kayenta")
+MYSQL = Node(name="mysql", node_type=Node.NodeType.storage)
+ORCA = Node(name="orca", node_type=Node.NodeType.service)
+REDIS = Node(name="redis")
+ROSCO = Node(name="rosco")
+SAML = Node(name="saml")
+
+DEPS = {
+    "deck": [GATE],
+    "gate": [ORCA, CLOUDDRIVER, FRONT50, ROSCO, IGOR, ECHO, FIAT, KAYENTA, SAML],
+    "orca": [CLOUDDRIVER, FRONT50, ROSCO, IGOR, ECHO, FIAT, KAYENTA, MYSQL],
+    "clouddriver": [FRONT50, FIAT, MYSQL, CONSUL, CLOUD_PROVIDER],
+    "front50": [FIAT, CLOUD_PROVIDER, Node(name="s3")],
+    "rosco": [CLOUD_PROVIDER, REDIS],
+    "igor": [CLOUDDRIVER, ECHO, REDIS, Node(name="CI")],
+    "echo": [ORCA, FRONT50, FIAT, Node(name="MessagingSystem")],
+    "fiat": [REDIS, SAML],
+    "kayenta": [REDIS, Node(name="Prometheus")],
+    "INTERNET": [GATE, DECK],
+}
+
+
+GLOBAL_SVCS = [INTERNET, DECK, GATE]
+REGIONAL_SVCS = [
+    INTERNET,
+    ORCA,
+    CLOUDDRIVER,
+]
+
+GLOBAL_DCS = [
+    Node(
+        name="us-east-1",
+        nodes=GLOBAL_SVCS + REGIONAL_SVCS,
+        renderer=Node.Renderer.region,
+        max_volume=50000,
+    ),
+    Node(
+        name="eu-west-1",
+        nodes=GLOBAL_SVCS + REGIONAL_SVCS,
+        renderer=Node.Renderer.region,
+        max_volume=50000,
+    ),
+]
+
+REGIONAL_DCS = [
+    Node(
+        name="us-west-1",
+        nodes=REGIONAL_SVCS,
+        renderer=Node.Renderer.region,
+        max_volume=50000,
+    ),
+    Node(
+        name="ap-southeast-1",
+        nodes=REGIONAL_SVCS,
+        renderer=Node.Renderer.region,
+        max_volume=50000,
+    ),
+]
+
+GLOBAL = Node(name="global", renderer=Node.Renderer.Global)
+
+for dc in GLOBAL_DCS + REGIONAL_DCS:
+    add_node(GLOBAL, INTERNET, dc, 50)
+    nodes = set(dc.nodes)
+    for n in dc.nodes:
+        nodes = nodes.union(DEPS[n.name])
+        for dep in DEPS[n.name]:
+            dc.connections.append(
+                Node.Connection(
+                    source=n.name,
+                    target=dep.name,
+                    metrics=Node.Connection.Metrics(
+                        normal=math.fabs(float((hash(n.name)))) % 100,
+                        danger=math.fabs(float((hash(dep.name)))) % 10,
+                    ),
+                )
+            )
+    dc.nodes = list(nodes)
+
+    dc.renderer = Node.Renderer.region
+GLOBAL.nodes.append(dc)
+
+
+def main():
+    return GLOBAL

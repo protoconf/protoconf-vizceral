@@ -1,0 +1,54 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@npm//@bazel/typescript:index.bzl", "ts_project")
+load("@npm//http-server:index.bzl", "http_server")
+load("@npm//sass:index.bzl", "sass")
+load("@npm//webpack-cli:index.bzl", webpack = "webpack_cli")
+
+js_library(
+    name = "app",
+    srcs = ["app.jsx", "appConstants.js", "appDispatcher.js"],
+    deps = [
+        "//app/components",
+        "@npm//react",
+        "@npm//@types/react",
+        "@npm//react-dom",
+        "@npm//@types/react-dom",
+    ]
+)
+
+ts_project(
+    # Experimental: Start a tsc daemon to watch for changes to make recompiles faster.
+    supports_workers = True,
+    deps = [
+        "@npm//@types",
+        "@npm//csstype",
+    ],
+)
+
+webpack(
+    name = "bundle",
+    outs = ["app.bundle.js"],
+    args = [
+        "$(execpath index.js)",
+        "--config",
+        "$(execpath webpack.config.js)",
+        "-o",
+        "$@",
+    ],
+    data = [
+        "index.js",
+        "styles.css",
+        "webpack.config.js",
+        "@npm//:node_modules",
+    ],
+)
+
+# Note, on Windows you need `--enable_runfiles`
+http_server(
+    name = "server",
+    data = [
+        "app.bundle.js",
+        "index.html",
+    ],
+    templated_args = ["."],
+)

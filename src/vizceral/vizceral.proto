@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package vizceral.v1;
+
+option go_package = "github.com/wix/viz-server";
+
+message Node {
+    string name = 1;
+    uint32 max_volume = 2;
+    Class class_type = 3 [json_name = "class"];
+    NodeType node_type = 4 [json_name = "node_type"];
+
+
+    repeated Node nodes = 20;
+    repeated Connection connections = 21;
+    repeated Notice notices = 22;
+    int32 updated = 90;
+    Renderer renderer = 99;
+
+    enum Class {
+        normal = 0;
+        warning = 1;
+        danger = 2;
+    }
+    enum Renderer {
+        none = 0;
+        Global = 1;
+        region = 2;
+        focusedChild = 3;
+        focused = 4;
+        dns =5;
+    }
+    enum NodeType {
+        default = 0;
+        azure = 1;
+        pipe = 2;
+        user = 3;
+        service = 4;
+        users = 5;
+        storage = 6;
+    }
+
+    message Notice {
+        string title = 1;
+        string link = 2;
+        uint32 severity =3;
+    }
+
+    message Connection {
+        string source = 1;
+        string target = 2;
+        Metrics metrics = 3;
+
+        message Metrics {
+            float normal = 1;
+            float danger = 2;
+        }
+    }
+}
