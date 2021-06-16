@@ -1,0 +1,106 @@
+"""
+"""
+load("vizceral.proto", "Node")
+load("math.star", "math")
+load("//services/frontend.pinc", "FRONTEND")
+
+
+def add_node(node, callernode, targetnode, multiplier=1):
+    callers = [n for n in node.nodes if n.name == callernode.name]
+    targets = [n for n in node.nodes if n.name == targetnode.name]
+    if len(callers) == 0:
+        node.nodes.append(callernode)
+    if len(targets) == 0:
+        node.nodes.append(targetnode)
+    callernode.renderer = Node.Renderer.focusedChild
+
+    connections = [
+        n
+        for n in node.connections
+        if n.source == callernode.name and n.target == targetnode.name
+    ]
+    if len(connections) == 0:
+        node.connections.append(
+            Node.Connection(
+                source=callernode.name,
+                target=targetnode.name,
+                metrics=Node.Connection.Metrics(
+                    normal=math.fabs(float((hash(callernode.name)))) % 100 * multiplier,
+                    danger=math.fabs(float((hash(targetnode.name)))) % 10 * multiplier,
+                ),
+            )
+        )
+
+
+def service_to_node(parent, s):
+    node = Node(name=s.name)
+    parent.nodes.append(node)
+    c = set(parent.connections)
+    c = c.union(
+        [
+            Node.Connection(
+                source=s.name,
+                target=dep.name,
+                metrics=Node.Connection.Metrics(
+                    normal=math.fabs(float((hash(s.name)))) % 100,
+                    danger=math.fabs(float((hash(dep.name)))) % 10,
+                ),
+            )
+            for dep in s.downstreams
+        ]
+    )
+    parent.connections = list(c)
+    for dep in s.downstreams:
+        service_to_node(parent, dep)
+    return parent
+
+
+INTERNET = Node(name="INTERNET", node_type=Node.NodeType.users)
+
+ALL_REGIONS = [
+    "us-east-2",
+    "us-east-1",
+    "us-west-1",
+    "us-west-2",
+    "us-west-2-lax-1a",
+    "us-west-2-lax-1b",
+    "af-south-1",
+    "ap-east-1",
+    "ap-south-1",
+    "ap-northeast-3",
+    "ap-northeast-2",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "ap-northeast-1",
+    "ca-central-1",
+    "eu-central-1",
+    "eu-west-1",
+    "eu-west-2",
+    "eu-south-1",
+    "eu-west-3",
+    "eu-north-1",
+    "me-south-1",
+    "sa-east-1",
+]
+
+GLOBAL_DCS = [
+    Node(name="us-east-1", renderer=Node.Renderer.region, max_volume=50000,),
+    # Node(name="eu-west-1", renderer=Node.Renderer.region, max_volume=50000,),
+]
+
+GLOBAL = Node(name="global", renderer=Node.Renderer.Global)
+
+for dc in GLOBAL_DCS:
+    add_node(GLOBAL, INTERNET, dc, 50)
+    service_to_node(dc, FRONTEND)
+
+    # Remove duplicates
+    nodes = set(dc.nodes)
+    dc.nodes = list(nodes)
+
+    dc.renderer = Node.Renderer.region
+GLOBAL.nodes.append(dc)
+
+
+def main():
+    return GLOBAL

@@ -1,0 +1,14 @@
+load("//services/services.proto", "ServiceRegistry")
+
+load("//services/frontend.pinc", "FRONTEND")
+load("//services/adservice.pinc", "AD_SERVICE")
+
+reg = ServiceRegistry(services=[FRONTEND, AD_SERVICE])
+
+
+def GetServiceByName(name):
+    return [svc for svc in reg.services if svc.name == name][0]
+
+
+def GetServicesForOwner(owner):
+    return [svc for svc in reg.services if svc.owner == owner]

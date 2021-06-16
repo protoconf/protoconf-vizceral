@@ -1,0 +1,18 @@
+load("//services/services.proto", "Service", "Version")
+DEFAULT_VERSIONS = [
+    Service.WeightedVersion(
+        name="prod",
+        version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+        weight=100,
+    ),
+    # Service.WeightedVersion(
+    #     name="beta",
+    #     version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+    #     weight=9,
+    # ),
+    # Service.WeightedVersion(
+    #     name="alpha",
+    #     version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+    #     weight=1,
+    # ),
+]

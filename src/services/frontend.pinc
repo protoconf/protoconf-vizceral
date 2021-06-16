@@ -1,0 +1,35 @@
+load("//services/services.proto", "Service", "Version")
+
+load("//services/adservice.pinc", "AD_SERVICE")
+load("//services/cartservice.pinc", "CART_SERVICE")
+load("//services/checkoutservice.pinc", "CHECKOUT_SERVICE")
+load("//services/currencyservice.pinc", "CURRENCY_SERVICE")
+load("//services/productcatalogservice.pinc", "PRODUCT_CATALOG_SERVICE")
+load("//services/recommendationservice.pinc", "RECOMMENDATION_SERVICE")
+load("//services/shippingservice.pinc", "SHIPPING_SERVICE")
+
+load("consts.pinc", "DEFAULT_VERSIONS")
+
+FRONTEND = Service(
+    name="Frontend",
+    description="""
+    Exposes an HTTP server to serve the website. Does not require signup/login and generates session IDs for all users automatically.
+    """,
+    versions=DEFAULT_VERSIONS,
+    downstreams=[
+        AD_SERVICE,
+        CART_SERVICE,
+        CHECKOUT_SERVICE,
+        CURRENCY_SERVICE,
+        PRODUCT_CATALOG_SERVICE,
+        RECOMMENDATION_SERVICE,
+        SHIPPING_SERVICE,
+    ],
+    slos=[
+        Service.SLO(
+            error_rate=Service.SLO.ErrorRateSLO(
+                meta=Service.SLO.SLOMeta(name="dummy_error_rate", below=0.01,)
+            )
+        )
+    ],
+)

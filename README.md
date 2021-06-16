@@ -1,29 +1,33 @@
 ![](https://raw.githubusercontent.com/Netflix/vizceral/master/logo.png)
 
 # Vizceral Example
-This is a sample application using the [React wrapper](https://github.com/Netflix/vizceral-react) around the [vizceral](https://github.com/Netflix/vizceral) graph.
-For more details about using vizceral in your own projects with your own data, refer to the above repositories.
 
-# Setup
-1. Get source, install deps, and run demo server.
+This is a [protoconf](https://protoconf.github.io/protoconf) based application using Netflix's [vizceral](https://github.com/Netflix/vizceral) tool to visualize connections between services configured by `protoconf`.
+In the future, we will integrate monitoring tools so you can visualize your entire production system and it's state using this tool.
 
-   ```sh
-   git clone git@github.com:Netflix/vizceral-example.git
-   cd vizceral-example
-   npm install
-   npm run dev
-   ```
+# Prerequisites
 
-2. Open `localhost:8080` in your browser.
+1. Docker
+2. [Protoconf](https://protoconf.github.io/protoconf/installation)
 
-##### Using Docker
-If you don't have a node environment setup or would like to run this example on a platform, there is a Dockerfile for experimental usage.
+# Build
 
-```
-$ docker build -t <name>/vizceral-example .
-```
-```
-$ docker run -p 41911:8080 -d <name>/vizceral-example
+```sh
+ docker build -t protoconf/protoconf-vizceral .
 ```
 
-Then you should be able to navigate to http://localhost:41911
+# Run
+
+1. Run the `protoconf` agent in dev mode:
+
+```sh
+protoconf agent -dev .
+```
+
+2. Run the container:
+
+```sh
+docker run -p 18080:8080 protoconf/protoconf-vizceral -protoconf_addr=host.docker.internal:4300
+```
+
+3. Open your browser: http://localhost:18080

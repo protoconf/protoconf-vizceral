@@ -24,7 +24,7 @@ import (
 
 var (
 	PROTOCONF_AGENT_ADDR  = flag.String("protoconf_addr", "localhost:4300", "protoconf agent addr")
-	PROTOCONF_CONFIG_PATH = flag.String("config_path", "spinnaker", "protoconf agent addr")
+	PROTOCONF_CONFIG_PATH = flag.String("config_path", "vizceral/default", "protoconf agent addr")
 )
 
 type srv struct {

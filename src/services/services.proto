@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package services;
+
+message ServiceRegistry {
+    repeated Service services = 1;
+}
+
+
+// `Service` is an abstract definition of a service in our environment,
+// this abstract definition can be used to generate configs for infrastructure
+// facilities such as Kubernetes jobs, Envoy routes, Prometheus scrapers,
+// Grafana dashboards and alerts, OpsGenie teams and services etc.
+message Service {
+    // `name` of the servies, should be unique within a `ServiceRegistry`
+    string name = 1;
+
+    // `description` of a service to educate other people with the purpose of
+    // this service.
+    string description = 2;
+
+    // `type` defines the type of the service, see `ServiceType` for more 
+    // details.
+    ServiceType type = 3;
+
+    // `owner` of the service, one of `User` or `Group`.
+
+    // `slos` for the service to create dashboards and alerts for.
+    repeated SLO slos = 5;
+
+    // `downstreams` are other services required by this service, can be used 
+    // for generating dashboards, whitelisting access etc.
+    repeated Service downstreams = 6;
+
+    // `external_downstreams` are third party APIs this service is using.
+    repeated ExternalService external_downstreams = 7;
+
+    // `artifact` is the reference for the main artifact to be run for this
+    // service. mainly used for Kubernetes to know which docker image to run.
+    Artifact artifact = 8;
+
+    // `versions` is used to define multiple versions of the service artifact to
+    // run. This can be used by Kubernetes to start multiple ReplicaSets with the
+    // approproate number of replicas based on `weight` and for Envoy to generate
+    // weighted clusters upstreams for checking new versions. Dashboards can use
+    // this to show performance difference between versions.
+    repeated WeightedVersion versions = 9;
+
+    // `WeightedVersion` is the definition for `versions`
+    message WeightedVersion {
+        Version version = 1;
+        uint32 weight = 2;
+        string name = 3;
+    }
+
+    // `SLO` is an abstract definition of an Service Level Objective. `SLO` can
+    // be used to support dashboards and alerts generation with different metrics
+    // backends (queries can be generted for different backends like prometheus or
+    // graphite).
+    message SLO {
+        oneof slo {
+            ErrorRateSLO error_rate = 1;
+            LatencySLO latency = 2;
+            SaturationSLO saturation = 3;
+            TroughputSLO troughput = 4;
+        }
+        message SLOMeta {
+            string name = 1;
+            oneof target {
+                float above = 2;
+                float below = 3;
+                // repeated float between = 4;
+                // repeated float outside = 5;
+            }
+        }
+
+        message ErrorRateSLO {
+            SLOMeta meta = 1;
+        }
+
+        message LatencySLO {
+            SLOMeta meta = 1;
+        }
+
+        message SaturationSLO {
+            SLOMeta meta = 1;
+        }
+
+        message TroughputSLO {
+            SLOMeta meta = 1;
+        }
+    }
+
+    // `ServiceType` can be used by cluster/traffic/dashboard managers to
+    // apply the correct templates.
+    enum ServiceType {
+        UNKNOWN = 0;
+        HTTP = 1;
+        GRPC = 2;
+        MYSQL = 3;
+        POSTGRESQL = 4;
+        MONGODB = 5;
+        REDIS = 6;
+        MEMCACHED = 7;
+    }
+}
+
+// `ExternalService` is used to define a 3rd party API service. It can be
+// refered by a service as a `external_downstream` to allow Envoy to 
+// whitelist its access and for the dashboards to show relevant metrics
+// about the third party service usage as well as subscribing to the 
+// service status RSS feed.
+message ExternalService {
+    // `name` is the identifier of the external service, should be unique
+    string name = 1;
+
+    // list of base URIs to allow for this external service
+    repeated string uris = 2;
+
+    // `status_rss_feed` to put in dashboards
+    string status_rss_feed = 3;
+
+    // `status_page_url` to link in dashboards
+    string status_page_url = 4;
+}
+
+message Artifact {
+    string name = 1;
+}
+
+// The full version of a given tool.
+message Version {
+    // The major version, e.g 10 for 10.2.3.
+    int32 major = 1;
+  
+    // The minor version, e.g. 2 for 10.2.3.
+    int32 minor = 2;
+  
+    // The patch version, e.g 3 for 10.2.3.
+    int32 patch = 3;
+  
+    // The pre-release version. Either this field or major/minor/patch fields
+    // must be filled. They are mutually exclusive. Pre-release versions are
+    // assumed to be earlier than any released versions.
+    string prerelease = 4;
+ }

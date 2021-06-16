@@ -1,0 +1,5 @@
+load("registry.pinc", "reg")
+
+
+def main():
+    return dict([[svc.name, svc] for svc in reg.services])

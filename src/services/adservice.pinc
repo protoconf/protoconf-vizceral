@@ -1,0 +1,22 @@
+"""
+defines the AD_SERVICE
+"""
+load("//services/services.proto", "Service", "Artifact", "Version")
+load("consts.pinc", "DEFAULT_VERSIONS")
+
+
+AD_SERVICE = Service(
+    name="AdService",
+    description="""\
+    Provides text ads based on given context words.
+    """.strip(),
+    artifact=Artifact(name="adservice"),
+    versions=DEFAULT_VERSIONS,
+    slos=[
+        Service.SLO(
+            error_rate=Service.SLO.ErrorRateSLO(
+                meta=Service.SLO.SLOMeta(name="dummy_error_rate", below=0.01,)
+            )
+        )
+    ],
+)

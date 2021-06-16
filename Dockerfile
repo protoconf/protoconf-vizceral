@@ -4,7 +4,7 @@ FROM node:alpine
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY package.json webpack.config.js yarn.lock .babelrc .eslintrc .jshintrc ./
+COPY package.json webpack.config.js yarn.lock .babelrc .eslintrc ./
 RUN yarn install
 
 # Bundle app source
@@ -12,7 +12,6 @@ COPY app app
 
 RUN yarn run build
 RUN yarn run copy:fonts
-RUN yarn run copy:json
 
 FROM golang:1.16
 WORKDIR /go/src/github.com/protoconf/protoconf-vizceral
@@ -30,6 +29,5 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=1 /go/src/github.com/protoconf/protoconf-vizceral/app .
-COPY --from=1 /go/src/github.com/protoconf/protoconf-vizceral .
-# COPY --from=0 /usr/src/app/dist dist
+# COPY --from=1 /go/src/github.com/protoconf/protoconf-vizceral .
 ENTRYPOINT ["./app"]

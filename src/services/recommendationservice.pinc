@@ -1,0 +1,36 @@
+load("//services/services.proto", "Service", "Version")
+
+load("//services/productcatalogservice.pinc", "PRODUCT_CATALOG_SERVICE")
+
+
+RECOMMENDATION_SERVICE = Service(
+    name="RecommendationService",
+    description="""
+    Recommends other products based on what's given in the cart.
+    """,
+    versions=[
+        Service.WeightedVersion(
+            name="prod",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=90,
+        ),
+        Service.WeightedVersion(
+            name="beta",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=9,
+        ),
+        Service.WeightedVersion(
+            name="alpha",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=1,
+        ),
+    ],
+    downstreams=[PRODUCT_CATALOG_SERVICE],
+    slos=[
+        Service.SLO(
+            error_rate=Service.SLO.ErrorRateSLO(
+                meta=Service.SLO.SLOMeta(name="dummy_error_rate", below=0.01,)
+            )
+        )
+    ],
+)

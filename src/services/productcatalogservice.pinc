@@ -1,0 +1,33 @@
+load("//services/services.proto", "Service", "Version")
+
+
+PRODUCT_CATALOG_SERVICE = Service(
+    name="ProductCatalogService",
+    description="""
+    Provides the list of products from a JSON file and ability to search products and get individual products.
+    """,
+    versions=[
+        Service.WeightedVersion(
+            name="prod",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=90,
+        ),
+        Service.WeightedVersion(
+            name="beta",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=9,
+        ),
+        Service.WeightedVersion(
+            name="alpha",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=1,
+        ),
+    ],
+    slos=[
+        Service.SLO(
+            error_rate=Service.SLO.ErrorRateSLO(
+                meta=Service.SLO.SLOMeta(name="dummy_error_rate", below=0.01,)
+            )
+        )
+    ],
+)

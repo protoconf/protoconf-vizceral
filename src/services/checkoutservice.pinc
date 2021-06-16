@@ -1,0 +1,51 @@
+"""
+Defines the CHECKOUT_SERVICE
+"""
+load("//services/services.proto", "Service", "Version")
+
+load("//services/cartservice.pinc", "CART_SERVICE")
+load("//services/currencyservice.pinc", "CURRENCY_SERVICE")
+load("//services/emailservice.pinc", "EMAIL_SERVICE")
+load("//services/paymentservice.pinc", "PAYMENT_SERVICE")
+load("//services/productcatalogservice.pinc", "PRODUCT_CATALOG_SERVICE")
+load("//services/shippingservice.pinc", "SHIPPING_SERVICE")
+
+
+CHECKOUT_SERVICE = Service(
+    name="CheckoutService",
+    description="""
+    Retrieves user cart, prepares order and orchestrates the payment, shipping and the email notification.
+    """,
+    versions=[
+        Service.WeightedVersion(
+            name="prod",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=90,
+        ),
+        Service.WeightedVersion(
+            name="beta",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=9,
+        ),
+        Service.WeightedVersion(
+            name="alpha",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=1,
+        ),
+    ],
+    downstreams=[
+        CART_SERVICE,
+        CURRENCY_SERVICE,
+        EMAIL_SERVICE,
+        PAYMENT_SERVICE,
+        PRODUCT_CATALOG_SERVICE,
+        SHIPPING_SERVICE,
+    ],
+    slos=[
+        Service.SLO(
+            error_rate=Service.SLO.ErrorRateSLO(
+                meta=Service.SLO.SLOMeta(name="dummy_error_rate", below=0.01,)
+            )
+        )
+    ],
+)

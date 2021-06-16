@@ -1,0 +1,12 @@
+load("//services/services.proto", "Service")
+
+
+def service_versions_eq_100(c):
+    sum = 0
+    for i in c.versions:
+        sum = sum + i.weight
+    if sum != 100:
+        fail("version weights for %s != 100 (%d)" % (c.name, sum))
+
+
+add_validator(Service, service_versions_eq_100)

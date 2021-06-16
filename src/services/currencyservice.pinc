@@ -1,0 +1,36 @@
+"""
+defines the CurrencyService
+"""
+load("//services/services.proto", "Service", "Version")
+
+
+CURRENCY_SERVICE = Service(
+    name="CurrencyService",
+    description="""
+    Converts one money amount to another currency. Uses real values fetched from European Central Bank. It's the highest QPS service.
+    """,
+    versions=[
+        Service.WeightedVersion(
+            name="prod",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=90,
+        ),
+        Service.WeightedVersion(
+            name="beta",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=9,
+        ),
+        Service.WeightedVersion(
+            name="alpha",
+            version=Version(major=0, minor=1, patch=4, prerelease="31-gc4d8670"),
+            weight=1,
+        ),
+    ],
+    slos=[
+        Service.SLO(
+            error_rate=Service.SLO.ErrorRateSLO(
+                meta=Service.SLO.SLOMeta(name="dummy_error_rate", below=0.01,)
+            )
+        )
+    ],
+)
