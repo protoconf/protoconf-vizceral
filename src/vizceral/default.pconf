@@ -3,6 +3,7 @@
 load("vizceral.proto", "Node")
 load("math.star", "math")
 load("//services/frontend.pinc", "FRONTEND")
+load("mutable:regions/count", REGIONS_COUNT="value")
 
 
 def add_node(node, callernode, targetnode, multiplier=1):
@@ -57,7 +58,7 @@ def service_to_node(parent, s):
 
 INTERNET = Node(name="INTERNET", node_type=Node.NodeType.users)
 
-ALL_REGIONS = [
+REGIONS = [
     "us-east-2",
     "us-east-1",
     "us-west-1",
@@ -82,15 +83,14 @@ ALL_REGIONS = [
     "me-south-1",
     "sa-east-1",
 ]
-
-GLOBAL_DCS = [
-    Node(name="us-east-1", renderer=Node.Renderer.region, max_volume=50000,),
-    # Node(name="eu-west-1", renderer=Node.Renderer.region, max_volume=50000,),
+DATACENTERS = [
+    Node(name=r, renderer=Node.Renderer.region, max_volume=50000,)
+    for r in REGIONS[0 : REGIONS_COUNT.value]
 ]
 
 GLOBAL = Node(name="global", renderer=Node.Renderer.Global)
 
-for dc in GLOBAL_DCS:
+for dc in DATACENTERS:
     add_node(GLOBAL, INTERNET, dc, 50)
     service_to_node(dc, FRONTEND)
 

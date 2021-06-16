@@ -31,3 +31,25 @@ docker run -p 18080:8080 protoconf/protoconf-vizceral -protoconf_addr=host.docke
 ```
 
 3. Open your browser: http://localhost:18080
+
+# Making changes
+
+## Editing the code
+
+1. Open `src/service/frontend.pinc`
+2. Under `downstreams` comment out the `CHECKOUT_SERVICE`
+3. run `protoconf compile .`
+
+## Via Mutation
+
+1. Run the mutation server
+
+```sh
+protoconf serve -post scripts/post.sh
+```
+
+2. Run a mutation command against the mutation server
+
+```sh
+protoconf mutate -path regions/count -proto google/protobuf/wrappers.proto -msg google.protobuf.UInt32Value -field value=5
+```
