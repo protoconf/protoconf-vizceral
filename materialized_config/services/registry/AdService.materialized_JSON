@@ -1,4 +1,32 @@
 {
   "protoFile": "services/services.proto",
-  "value": {"@type":"type.googleapis.com/services.Service","artifact":{"name":"adservice"},"description":"Provides text ads based on given context words.","name":"AdService","slos":[{"errorRate":{"meta":{"name":"dummy_error_rate","below":0.01}}}],"versions":[{"version":{"minor":1,"patch":4,"prerelease":"31-gc4d8670"},"weight":100,"name":"prod"}]}
+  "value": {
+    "@type": "type.googleapis.com/services.Service",
+    "artifact": {
+      "name": "adservice"
+    },
+    "description": "Provides text ads based on given context words.",
+    "name": "AdService",
+    "slos": [
+      {
+        "errorRate": {
+          "meta": {
+            "name": "dummy_error_rate",
+            "below": 0.01
+          }
+        }
+      }
+    ],
+    "versions": [
+      {
+        "version": {
+          "minor": 1,
+          "patch": 4,
+          "prerelease": "31-gc4d8670"
+        },
+        "weight": 100,
+        "name": "prod"
+      }
+    ]
+  }
 }

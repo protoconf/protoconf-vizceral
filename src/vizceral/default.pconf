@@ -34,7 +34,12 @@ def add_node(node, callernode, targetnode, multiplier=1):
 
 
 def service_to_node(parent, s):
-    node = Node(name=s.name)
+    node = Node(
+        name=s.name,
+        notices=[Node.Notice(title="hello", link="https://google.com", severity=0)],
+        # node_type=Node.NodeType.users,
+
+    )
     parent.nodes.append(node)
     c = set(parent.connections)
     c = c.union(

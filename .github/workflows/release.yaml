@@ -1,0 +1,27 @@
+on: release
+
+name: Build, test and publish
+jobs:
+  buildDockerImage:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Is release published?
+      if: github.event.action != 'published'
+      run: exit 78
+    - uses: actions/checkout@master
+    - name: Build docker image
+      run: docker build -t local --build-arg VERSION=${{ github.event.release.tag_name }} .
+    - name: Log into docker
+      env:
+        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        DOCKER_REGISTRY_URL: ghcr.io
+        DOCKER_USERNAME: ${{ github.actor }}
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY_URL
+    - name: Release if tagged
+      if: "!startswith(github.ref, 'refs/tags/v')"
+      run: exit 78
+    - name: Tag docker image
+      run: docker tag local ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}
+    - name: Publish docker image
+      run: docker push ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}

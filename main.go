@@ -13,8 +13,9 @@ import (
 
 	"github.com/avast/retry-go"
 	"github.com/gorilla/handlers"
-	"github.com/protoconf/protoconf-vizceral/pkg/pb"
+	pb "github.com/protoconf/protoconf-vizceral/gen/proto/go/src/vizceral"
 	"github.com/protoconf/protoconf-vizceral/pkg/static"
+	pc "github.com/protoconf/protoconf/agent/api/proto/v1"
 	"golang.org/x/sync/errgroup"
 	grpc "google.golang.org/grpc"
 	jsonpb "google.golang.org/protobuf/encoding/protojson"
@@ -39,8 +40,8 @@ func (s *srv) update(agentAddr, configPath string) {
 				log.Println(err)
 				return err
 			}
-			stub := pb.NewProtoconfServiceClient(conn)
-			stream, err := stub.SubscribeForConfig(context.Background(), &pb.ConfigSubscriptionRequest{Path: configPath})
+			stub := pc.NewProtoconfServiceClient(conn)
+			stream, err := stub.SubscribeForConfig(context.Background(), &pc.ConfigSubscriptionRequest{Path: configPath})
 			if err != nil {
 				log.Println(err)
 				return err

@@ -17,3 +17,5 @@ node_modules
 # Temporary Files and Backups
 *.swp
 *.*~
+
+protoconf-vizceral

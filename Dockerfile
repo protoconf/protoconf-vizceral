@@ -21,6 +21,7 @@ COPY --from=0 /usr/src/app/dist dist
 
 COPY *.go ./
 COPY pkg/ pkg
+COPY gen/ gen
 RUN find .; go mod init && go mod tidy
 RUN go-bindata -o ./pkg/static/bindata.go -pkg static -fs -prefix="dist/" dist/... 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .

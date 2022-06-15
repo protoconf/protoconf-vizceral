@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package services;
+option go_package = "github.com/protoconf/protoconf-vizceral/src/services";
 
 message ServiceRegistry {
     repeated Service services = 1;

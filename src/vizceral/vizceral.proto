@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package vizceral.v1;
 
-option go_package = "github.com/wix/viz-server";
+option go_package = "github.com/protoconf/protoconf-vizceral/src/vizceral";
 
 message Node {
     string name = 1;
@@ -18,9 +18,10 @@ message Node {
     Renderer renderer = 99;
 
     enum Class {
-        normal = 0;
-        warning = 1;
-        danger = 2;
+        unspecified = 0;
+        normal = 1;
+        warning = 2;
+        danger = 3;
     }
     enum Renderer {
         none = 0;

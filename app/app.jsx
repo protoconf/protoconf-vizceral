@@ -23,8 +23,8 @@ function fontsActive () {
 
 WebFont.load({
   custom: {
-    families: ['Source Sans Pro:n3,n4,n6,n7'],
-    urls: ['/fonts/source-sans-pro.css']
+    families: ['Roboto:n3,n4,n6,n7'],
+    urls: ['https://fonts.googleapis.com/css2?family=Roboto&display=swap']
   },
   active: fontsActive
 });
